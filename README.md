@@ -114,6 +114,7 @@ Em outro terminal, crie um registro com 40 dias e uma chave Redis para ele:
 
 ```
 docker exec rastreamento-mongodb mongosh vehicle_tracking --eval 'db.locations.insertOne({vehicleId:"CAR-ANTIGO",latitude:-23.5,longitude:-46.6,recordedAt:new Date(Date.now()-40*86400000)})'
+
 docker exec rastreamento-redis redis-cli SETEX vehicle:location:CAR-ANTIGO 300 "-23.5|-46.6|2026-08-23T12:00:00Z"
 
 ```
@@ -122,3 +123,24 @@ No menu, digite 3 e depois 30. Deve remover o registro antigo. Verifique que a c
 ```
 docker exec rastreamento-redis redis-cli GET vehicle:location:CAR-ANTIGO
 ```
+O resultado esperado é (null).
+
+5. Testar coordenadas inválidas e veículo sem localização
+
+No menu, informe valores fora dos limites; o programa deve pedir novamente:
+
+```
+1
+CAR-LIMITE
+91
+-90
+-181
+180
+```
+91 e -181 devem ser rejeitados; -90 e 180 devem ser aceitos. Depois, teste um veículo inexistente:
+
+```
+2
+CAR-INEXISTENTE
+```
+Deve informar que nenhuma localização foi encontrada.
